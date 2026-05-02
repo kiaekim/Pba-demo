@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy by Abstraction v3.0</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+KR:wght@300;400;500;600&family=Noto+Serif+KR:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue:#2563eb; --blue2:#1d4ed8; --slate:#64748b; --dim:#94a3b8;
+  --line:#1e3050; --pass:#10b981; --warn:#f59e0b; --halt:#ef4444;
+  --bg:#080f1c; --card:#0d1b2e; --card2:#111f33; --text:#e2e8f0;
+  --mono:'IBM Plex Mono',monospace; --sans:'Noto Sans KR',sans-serif;
+  --serif:'Noto Serif KR',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(37,99,235,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,235,0.03) 1px,transparent 1px);
+  background-size:40px 40px;pointer-events:none;z-index:0;}
+
+header{position:relative;z-index:10;border-bottom:1px solid var(--line);padding:16px 40px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(8,15,28,0.93);backdrop-filter:blur(12px);}
+.logo{font-family:var(--mono);font-size:13px;color:var(--blue);}
+.logo span{color:var(--dim);}
+.badge-hdr{font-family:var(--mono);font-size:10px;color:var(--dim);border:1px solid var(--line);padding:4px 12px;border-radius:2px;}
+
+.hero{position:relative;z-index:5;padding:44px 40px 28px;max-width:1200px;margin:0 auto;}
+.hero-tag{font-family:var(--mono);font-size:11px;color:var(--blue);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;}
+.hero h1{font-family:var(--serif);font-size:clamp(20px,3vw,38px);font-weight:300;line-height:1.35;margin-bottom:12px;}
+.hero h1 em{font-style:normal;color:var(--blue);font-weight:400;}
+.hero-copy{font-family:var(--mono);font-size:12px;color:var(--dim);margin-bottom:18px;line-height:1.9;}
+.hero-copy strong{color:var(--pass);font-weight:500;}
+.disclaimer{font-family:var(--mono);font-size:10px;color:var(--slate);border-left:2px solid var(--line);padding-left:14px;line-height:1.8;}
+
+.main{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:0 40px 60px;
+  display:grid;grid-template-columns:240px 1fr 264px;gap:18px;align-items:start;}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:4px;overflow:hidden;}
+.panel-header{padding:10px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;}
+.panel-label{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.08em;text-transform:uppercase;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--blue);flex-shrink:0;}
+.panel-body{padding:16px;}
+
+.case-btn{width:100%;padding:12px 14px;margin-bottom:8px;background:var(--card2);
+  border:1px solid var(--line);border-radius:3px;color:var(--dim);
+  font-family:var(--sans);font-size:12px;cursor:pointer;text-align:left;
+  transition:all .15s;display:flex;flex-direction:column;gap:5px;}
+.case-btn:hover{border-color:var(--blue);color:var(--text);}
+.case-btn.active{border-color:var(--blue);background:rgba(37,99,235,.08);color:var(--text);}
+.case-top{display:flex;align-items:center;justify-content:space-between;}
+.case-title{font-weight:500;font-size:12px;}
+.case-badge{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:2px;flex-shrink:0;}
+.b-halt{background:rgba(239,68,68,.15);color:#fca5a5;}
+.b-pass{background:rgba(16,185,129,.15);color:#6ee7b7;}
+.b-warn{background:rgba(245,158,11,.15);color:#fcd34d;}
+.case-sub{font-family:var(--mono);font-size:10px;color:var(--slate);}
+
+.doc-preview{background:var(--card2);border:1px solid var(--line);border-radius:3px;
+  padding:12px;height:86px;overflow:hidden;position:relative;margin:12px 0;}
+.doc-blur{filter:blur(3px);opacity:.28;}
+.doc-blur div{height:7px;border-radius:2px;background:var(--dim);margin-bottom:8px;}
+.doc-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:10px;color:var(--slate);letter-spacing:.07em;}
+
+.goal-input{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:3px;
+  padding:8px 10px;color:var(--text);font-family:var(--sans);font-size:12px;font-weight:300;
+  resize:none;height:50px;line-height:1.6;outline:none;transition:border-color .15s;margin-bottom:10px;}
+.goal-input:focus{border-color:var(--blue);}
+.run-btn{width:100%;padding:11px;background:var(--blue);border:none;border-radius:3px;
+  color:#fff;font-family:var(--mono);font-size:12px;cursor:pointer;letter-spacing:.06em;transition:background .15s;}
+.run-btn:hover{background:var(--blue2);}
+.run-btn:disabled{background:var(--line);color:var(--slate);cursor:not-allowed;}
+
+/* Pipeline */
+.stage-row{display:grid;grid-template-columns:148px 1fr;align-items:center;gap:12px;
+  padding:10px 16px;border-bottom:1px solid var(--line);transition:background .2s;position:relative;}
+.stage-row:last-child{border-bottom:none;}
+.stage-row.active{background:rgba(37,99,235,.05);}
+.stage-name{font-family:var(--mono);font-size:11px;color:var(--dim);}
+.stage-name.lit{color:var(--text);}
+.stage-right{display:flex;align-items:center;gap:10px;}
+.bar-wrap{flex:1;height:4px;background:var(--line);border-radius:2px;overflow:hidden;}
+.bar{height:100%;border-radius:2px;width:0%;transition:width .55s ease,background .3s;}
+.stage-st{font-family:var(--mono);font-size:10px;letter-spacing:.07em;min-width:72px;text-align:right;opacity:0;transition:opacity .3s;}
+.stage-st.show{opacity:1;}
+.s-cont{color:var(--pass);} .s-rep{color:var(--warn);} .s-halt{color:var(--halt);} .s-blk{color:#374151;} .s-allow{color:var(--pass);}
+
+.retry-row{display:none;grid-template-columns:148px 1fr;align-items:center;gap:12px;
+  padding:8px 16px 10px;background:rgba(245,158,11,.04);
+  border-bottom:1px solid var(--line);border-left:2px solid rgba(245,158,11,.4);}
+.retry-label{font-family:var(--mono);font-size:10px;color:var(--warn);letter-spacing:.06em;}
+
+.llm-row{background:var(--card2);}
+.llm-blocked{background:rgba(239,68,68,.04)!important;}
+.llm-pass{background:rgba(16,185,129,.03)!important;}
+
+.pipeline-banner{padding:12px 16px;border-top:1px solid var(--line);display:none;}
+.ban-halt{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.04);}
+.ban-pass{border-color:rgba(16,185,129,.2);background:rgba(16,185,129,.03);}
+.ban-title{font-family:var(--mono);font-size:11px;letter-spacing:.07em;}
+.ban-detail{font-family:var(--mono);font-size:10px;color:var(--slate);margin-top:4px;line-height:1.5;}
+
+/* HALT 이후 경로 */
+.halt-next{margin-top:12px;padding-top:12px;border-top:1px solid rgba(239,68,68,.2);}
+.halt-next-label{font-family:var(--mono);font-size:10px;color:var(--slate);
+  letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;}
+.next-options{display:flex;flex-direction:column;gap:6px;}
+.next-btn{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;
+  background:var(--card);border:1px solid var(--line);border-radius:3px;
+  cursor:pointer;text-align:left;transition:all .15s;width:100%;}
+.next-btn:hover{border-color:var(--blue);background:rgba(37,99,235,.06);}
+.next-btn.chosen{border-color:var(--blue);background:rgba(37,99,235,.08);}
+.nb-num{font-family:var(--mono);font-size:11px;color:var(--blue);font-weight:500;flex-shrink:0;margin-top:1px;}
+.nb-body{display:flex;flex-direction:column;gap:3px;}
+.nb-title{font-family:var(--sans);font-size:12px;font-weight:500;color:var(--dim);transition:color .15s;}
+.next-btn:hover .nb-title,.next-btn.chosen .nb-title{color:var(--text);}
+.nb-sub{font-family:var(--mono);font-size:10px;color:var(--slate);line-height:1.5;}
+
+/* Right */
+.result-section{margin-bottom:14px;}
+.result-label{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px;}
+.result-value{font-family:var(--mono);font-size:12px;font-weight:500;padding:9px 12px;border-radius:3px;border:1px solid var(--line);background:var(--card2);}
+.v-pass{color:var(--pass);border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.05);}
+.v-halt{color:var(--halt);border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05);}
+.v-warn{color:var(--warn);border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.05);}
+.v-dim{color:var(--dim);}
+.reason-box{background:var(--card2);border:1px solid var(--line);border-radius:3px;padding:10px 12px;
+  font-family:var(--sans);font-size:12px;font-weight:300;color:var(--dim);line-height:1.7;min-height:52px;white-space:pre-line;}
+.r-halt{border-color:rgba(239,68,68,.3);color:#fca5a5;}
+.r-pass{border-color:rgba(16,185,129,.3);color:#6ee7b7;}
+.r-warn{border-color:rgba(245,158,11,.3);color:#fcd34d;}
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px;}
+.m-item{background:var(--card2);border:1px solid var(--line);border-radius:3px;padding:8px 10px;}
+.m-key{font-family:var(--mono);font-size:9px;color:var(--slate);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
+.m-val{font-family:var(--mono);font-size:14px;font-weight:500;}
+.c-red{color:var(--halt);} .c-amber{color:var(--warn);} .c-green{color:var(--pass);} .c-dim{color:var(--dim);}
+
+.path-section{margin-bottom:14px;display:none;}
+.path-section.show{display:block;}
+.path-value{font-family:var(--mono);font-size:11px;padding:9px 12px;border-radius:3px;
+  border:1px solid rgba(37,99,235,.3);background:rgba(37,99,235,.06);color:#93c5fd;line-height:1.6;}
+
+.human-box{padding:10px 12px;border-radius:3px;border:1px dashed var(--line);
+  font-family:var(--mono);font-size:11px;color:var(--slate);text-align:center;transition:all .3s;}
+.human-on{border-color:rgba(245,158,11,.5);color:var(--warn);background:rgba(245,158,11,.04);}
+
+.footer{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:18px 40px 40px;
+  font-family:var(--mono);font-size:10px;color:var(--slate);border-top:1px solid var(--line);line-height:1.8;}
+
+@keyframes halt-flash{0%,100%{background:rgba(239,68,68,.04)}50%{background:rgba(239,68,68,.14)}}
+@keyframes warn-pulse{0%,100%{background:rgba(245,158,11,.04)}50%{background:rgba(245,158,11,.12)}}
+@keyframes slide-in{from{opacity:0;transform:translateX(6px)}to{opacity:1;transform:translateX(0)}}
+.slide-in{animation:slide-in .28s ease forwards;}
+.halt-flash{animation:halt-flash .55s ease 3;}
+.warn-pulse{animation:warn-pulse .6s ease 2;}
+
+@media(max-width:960px){
+  .main{grid-template-columns:1fr;}
+  header,.hero,.main,.footer{padding-left:20px;padding-right:20px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">PBA<span> / </span>Privacy by Abstraction<span> — v3.0</span></div>
+  <div class="badge-hdr">제어 흐름 데모 · 내부용</div>
+</header>
+
+<div class="hero">
+  <div class="hero-tag">Multi-Layer Risk Control</div>
+  <h1>원문은 <em>AI에 닿지 않습니다</em>.<br>위험은 <em>LLM 이전에</em> 감지됩니다.</h1>
+  <div class="hero-copy">
+    <strong>Not everything is blocked.</strong>&nbsp;&nbsp;
+    <strong>Not everything is allowed.</strong><br>
+    The system decides where to stop — before the LLM.
+  </div>
+  <p class="disclaimer">
+    이 데모는 원문, 탐지 규칙, 정책 임계값, 내부 추상화 로직을 공개하지 않습니다.<br>
+    시스템이 어느 지점에서 허용·재처리·차단하는지 제어 흐름만 시각화합니다.
+  </p>
+</div>
+
+<div class="main">
+
+  <!-- LEFT -->
+  <div class="panel">
+    <div class="panel-header"><div class="dot"></div><span class="panel-label">케이스 선택</span></div>
+    <div class="panel-body">
+      <button class="case-btn active" data-case="nda" onclick="selectCase(this)">
+        <div class="case-top">
+          <span class="case-title">NDA / 기밀유지 계약</span>
+          <span class="case-badge b-halt">HALT</span>
+        </div>
+        <span class="case-sub">고위험 · Abstraction 단계 차단</span>
+      </button>
+      <button class="case-btn" data-case="generic" onclick="selectCase(this)">
+        <div class="case-top">
+          <span class="case-title">일반 정책 조항</span>
+          <span class="case-badge b-pass">PASS</span>
+        </div>
+        <span class="case-sub">저위험 · 전 단계 통과</span>
+      </button>
+      <button class="case-btn" data-case="spa" onclick="selectCase(this)">
+        <div class="case-top">
+          <span class="case-title">M&amp;A SPA 조항</span>
+          <span class="case-badge b-warn">REPROCESS→HALT</span>
+        </div>
+        <span class="case-sub">중위험 · 재처리 후 차단</span>
+      </button>
+      <div class="doc-preview">
+        <div class="doc-blur">
+          <div style="width:85%"></div><div style="width:70%"></div>
+          <div style="width:92%"></div><div style="width:63%"></div>
+          <div style="width:78%"></div><div style="width:55%"></div>
+        </div>
+        <div class="doc-overlay">[ 원문 · 로컬 고정 ]</div>
+      </div>
+      <textarea class="goal-input" id="userGoal">AI 전달 전 금전적 리스크를 확인해 주세요.</textarea>
+      <button class="run-btn" id="runBtn" onclick="runDemo()">▶ 파이프라인 실행</button>
+    </div>
+  </div>
+
+  <!-- CENTER -->
+  <div class="panel">
+    <div class="panel-header"><div class="dot"></div><span class="panel-label">파이프라인 — 다층 위험 제어 활성</span></div>
+
+    <div id="row-AnchorMap" class="stage-row">
+      <span class="stage-name" id="nm-AnchorMap">AnchorMap</span>
+      <div class="stage-right"><div class="bar-wrap"><div class="bar" id="bar-AnchorMap"></div></div><span class="stage-st" id="st-AnchorMap">—</span></div>
+    </div>
+    <div id="row-Abstraction" class="stage-row">
+      <span class="stage-name" id="nm-Abstraction">Abstraction</span>
+      <div class="stage-right"><div class="bar-wrap"><div class="bar" id="bar-Abstraction"></div></div><span class="stage-st" id="st-Abstraction">—</span></div>
+    </div>
+    <div id="row-PatternDefense" class="stage-row">
+      <span class="stage-name" id="nm-PatternDefense">PatternDefense</span>
+      <div class="stage-right"><div class="bar-wrap"><div class="bar" id="bar-PatternDefense"></div></div><span class="stage-st" id="st-PatternDefense">—</span></div>
+    </div>
+    <div id="retryRow" class="retry-row">
+      <span class="retry-label">↺ PatternDefense (재처리)</span>
+      <div class="stage-right"><div class="bar-wrap"><div class="bar" id="bar-retry" style="background:var(--halt)"></div></div><span class="stage-st show s-halt" id="st-retry">—</span></div>
+    </div>
+    <div id="row-QueryBuilder" class="stage-row">
+      <span class="stage-name" id="nm-QueryBuilder">QueryBuilder</span>
+      <div class="stage-right"><div class="bar-wrap"><div class="bar" id="bar-QueryBuilder"></div></div><span class="stage-st" id="st-QueryBuilder">—</span></div>
+    </div>
+    <div id="row-LLM" class="stage-row llm-row">
+      <span class="stage-name" id="nm-LLM">LLM</span>
+      <div class="stage-right"><div class="bar-wrap"><div class="bar" id="bar-LLM"></div></div><span class="stage-st" id="st-LLM">—</span></div>
+    </div>
+    <div id="row-SchemaValidator" class="stage-row">
+      <span class="stage-name" id="nm-SchemaValidator">SchemaValidator</span>
+      <div class="stage-right"><div class="bar-wrap"><div class="bar" id="bar-SchemaValidator"></div></div><span class="stage-st" id="st-SchemaValidator">—</span></div>
+    </div>
+    <div id="row-Recomposer" class="stage-row">
+      <span class="stage-name" id="nm-Recomposer">Recomposer</span>
+      <div class="stage-right"><div class="bar-wrap"><div class="bar" id="bar-Recomposer"></div></div><span class="stage-st" id="st-Recomposer">—</span></div>
+    </div>
+
+    <!-- HALT 배너 + 경로 선택 -->
+    <div id="bannerHalt" class="pipeline-banner ban-halt">
+      <div class="ban-title" style="color:var(--halt)">⊘ LLM 경로 차단</div>
+      <div class="ban-detail" id="bannerDetail"></div>
+      <div class="halt-next">
+        <div class="halt-next-label">→ 안전 경로 선택</div>
+        <div class="next-options">
+          <button class="next-btn" id="btn-human" onclick="selectPath('human',this)">
+            <span class="nb-num">①</span>
+            <div class="nb-body">
+              <span class="nb-title">Human Review</span>
+              <span class="nb-sub">판단 구조 + 리스크 위치만 제공<br>법무·보안팀 직접 검토</span>
+            </div>
+          </button>
+          <button class="next-btn" id="btn-reabstract" onclick="selectPath('reabstract',this)">
+            <span class="nb-num">②</span>
+            <div class="nb-body">
+              <span class="nb-title">Safe Re-Abstraction</span>
+              <span class="nb-sub">추상화 수준 상향 후 재시도<br>금액→범위, 주체→역할로 완화</span>
+            </div>
+          </button>
+          <button class="next-btn" id="btn-secure" onclick="selectPath('secure',this)">
+            <span class="nb-num">③</span>
+            <div class="nb-body">
+              <span class="nb-title">Secure Local Processing</span>
+              <span class="nb-sub">외부 LLM 차단 · 내부 모델 실행<br>온프레미스 / air-gapped 환경</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="bannerPass" class="pipeline-banner ban-pass">
+      <div class="ban-title" style="color:var(--pass)">✓ Decision Workbench 도달</div>
+      <div class="ban-detail">구조화된 결과 반환 완료. 원문 미노출.</div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="panel">
+    <div class="panel-header"><div class="dot"></div><span class="panel-label">결과</span></div>
+    <div class="panel-body">
+      <div class="result-section">
+        <div class="result-label">LLM 호출</div>
+        <div class="result-value v-dim" id="r-llm">—</div>
+      </div>
+      <div class="result-section">
+        <div class="result-label">제어 결과</div>
+        <div class="result-value v-dim" id="r-outcome">—</div>
+      </div>
+      <div class="result-section">
+        <div class="result-label">판단 근거</div>
+        <div class="reason-box" id="r-reason">실행 대기 중…</div>
+      </div>
+      <div class="result-section">
+        <div class="result-label">원문 노출</div>
+        <div class="result-value v-pass" style="font-size:18px">0 토큰</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--slate);margin-top:4px">LLM 경로: 항상 0</div>
+      </div>
+      <div class="result-section">
+        <div class="result-label">샘플 지표</div>
+        <div class="metrics-grid">
+          <div class="m-item"><div class="m-key">재식별 위험</div><div class="m-val c-dim" id="m-reid">—</div></div>
+          <div class="m-item"><div class="m-key">구조 보존율</div><div class="m-val c-dim" id="m-fid">—</div></div>
+          <div class="m-item"><div class="m-key">앵커 커버리지</div><div class="m-val c-dim" id="m-anc">—</div></div>
+          <div class="m-item"><div class="m-key">신뢰구간</div><div class="m-val c-dim" id="m-conf">—</div></div>
+        </div>
+      </div>
+      <div class="path-section" id="pathSection">
+        <div class="result-label">선택된 경로</div>
+        <div class="path-value" id="r-path">—</div>
+      </div>
+      <div class="result-section">
+        <div class="result-label">인간 판단 전환</div>
+        <div class="human-box" id="r-human">미발동</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  이 데모는 제어 흐름만 시각화합니다. 내부 임계값, 정책 테이블, 추상화 규칙, LLM payload 구조는 공개되지 않습니다.
+  &nbsp;·&nbsp; Privacy by Abstraction v3.0 &nbsp;·&nbsp; Confidential
+</div>
+
+<script>
+var STAGES = ["AnchorMap","Abstraction","PatternDefense","QueryBuilder","LLM","SchemaValidator","Recomposer"];
+
+var DCLS = {"통과":"s-cont","중단":"s-halt","재처리":"s-rep","차단":"s-blk","허용":"s-allow"};
+
+var SC = {
+  nda: {
+    goal: "AI 전달 전 기밀 조항 위험을 검토해 주세요.",
+    stages: {
+      AnchorMap:      {d:"통과", bar:82, col:"#10b981"},
+      Abstraction:    {d:"중단", bar:91, col:"#ef4444"},
+      PatternDefense: {d:"차단", bar:0,  col:"#374151"},
+      QueryBuilder:   {d:"차단", bar:0,  col:"#374151"},
+      LLM:            {d:"차단", bar:0,  col:"#374151"},
+      SchemaValidator:{d:"차단", bar:0,  col:"#374151"},
+      Recomposer:     {d:"차단", bar:0,  col:"#374151"}
+    },
+    haltAt:"Abstraction", retry:false,
+    llm:"차단됨", llmC:"v-halt",
+    outcome:"HALT — LLM 호출 없음", outC:"v-halt",
+    reason:"재식별 위험이 임계값을 초과했습니다.\nAbstraction 단계에서 LLM 호출 전 차단.",
+    reasonC:"r-halt",
+    detail:"stage=Abstraction · 재식별 위험 임계값 초과",
+    human:true,
+    metrics:{reid:"0.91",fid:"0.88",anc:"0.82",conf:"N/A"},
+    mclass:{reid:"c-red",fid:"c-green",anc:"c-green",conf:"c-amber"}
+  },
+  generic: {
+    goal: "AI 전달 전 금전적 리스크를 확인해 주세요.",
+    stages: {
+      AnchorMap:      {d:"통과", bar:88, col:"#10b981"},
+      Abstraction:    {d:"통과", bar:22, col:"#10b981"},
+      PatternDefense: {d:"통과", bar:91, col:"#10b981"},
+      QueryBuilder:   {d:"통과", bar:80, col:"#10b981"},
+      LLM:            {d:"허용", bar:79, col:"#10b981"},
+      SchemaValidator:{d:"통과", bar:95, col:"#10b981"},
+      Recomposer:     {d:"통과", bar:79, col:"#10b981"}
+    },
+    haltAt:null, retry:false,
+    llm:"허용됨", llmC:"v-pass",
+    outcome:"PASS — 전 단계 완료", outC:"v-pass",
+    reason:"모든 위험 체크포인트를 통과했습니다.\n구조화된 payload만 LLM에 전달. 원문 미노출.",
+    reasonC:"r-pass",
+    detail:null, human:false,
+    metrics:{reid:"0.22",fid:"0.91",anc:"0.88",conf:"0.79"},
+    mclass:{reid:"c-green",fid:"c-green",anc:"c-green",conf:"c-green"}
+  },
+  spa: {
+    goal: "M&A 조항의 금전적 노출 위험을 분석해 주세요.",
+    stages: {
+      AnchorMap:      {d:"통과",   bar:76, col:"#10b981"},
+      Abstraction:    {d:"통과",   bar:44, col:"#10b981"},
+      PatternDefense: {d:"재처리", bar:62, col:"#f59e0b"},
+      QueryBuilder:   {d:"중단",   bar:0,  col:"#ef4444"},
+      LLM:            {d:"차단",   bar:0,  col:"#374151"},
+      SchemaValidator:{d:"차단",   bar:0,  col:"#374151"},
+      Recomposer:     {d:"차단",   bar:0,  col:"#374151"}
+    },
+    haltAt:"PatternDefense", retry:true, retryBar:65,
+    llm:"차단됨", llmC:"v-halt",
+    outcome:"REPROCESS → HALT", outC:"v-warn",
+    reason:"구조 보존율 부족 → 재처리 시도.\n재처리 후에도 기준 미달 → LLM 이전 차단.",
+    reasonC:"r-warn",
+    detail:"stage=PatternDefense · 재처리 후에도 구조 보존율 기준 미달",
+    human:true,
+    metrics:{reid:"0.44",fid:"0.65",anc:"0.76",conf:"N/A"},
+    mclass:{reid:"c-green",fid:"c-red",anc:"c-green",conf:"c-amber"}
+  }
+};
+
+var PATH_DESC = {
+  human:      "① Human Review\n판단 구조와 리스크 위치만 전달.\n사람이 최종 결정.",
+  reabstract: "② Safe Re-Abstraction\n추상화 수준 상향 후 재시도.\n정보를 덜 주고 다시 분석.",
+  secure:     "③ Secure Local Processing\n외부 LLM 차단.\n온프레미스 모델로 격리 실행."
+};
+
+var cur = "nda";
+var running = false;
+
+function selectCase(btn) {
+  document.querySelectorAll('.case-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  cur = btn.getAttribute('data-case');
+  document.getElementById('userGoal').value = SC[cur].goal;
+  reset();
+}
+
+function reset() {
+  STAGES.forEach(function(s) {
+    var bar = document.getElementById('bar-' + s);
+    var st  = document.getElementById('st-' + s);
+    var row = document.getElementById('row-' + s);
+    var nm  = document.getElementById('nm-' + s);
+    if (bar) { bar.style.width = '0%'; bar.style.background = 'var(--blue)'; }
+    if (st)  { st.textContent = '—'; st.className = 'stage-st'; }
+    if (row) { row.className = 'stage-row' + (s === 'LLM' ? ' llm-row' : ''); row.style.background = ''; }
+    if (nm)  { nm.className = 'stage-name'; }
+  });
+  document.getElementById('retryRow').style.display = 'none';
+  document.getElementById('bar-retry').style.width = '0%';
+  document.getElementById('st-retry').textContent = '—';
+  document.getElementById('bannerHalt').style.display = 'none';
+  document.getElementById('bannerPass').style.display = 'none';
+  document.getElementById('r-llm').textContent = '—';     document.getElementById('r-llm').className = 'result-value v-dim';
+  document.getElementById('r-outcome').textContent = '—'; document.getElementById('r-outcome').className = 'result-value v-dim';
+  document.getElementById('r-reason').textContent = '실행 대기 중…'; document.getElementById('r-reason').className = 'reason-box';
+  document.getElementById('r-human').textContent = '미발동'; document.getElementById('r-human').className = 'human-box';
+  document.getElementById('pathSection').className = 'path-section';
+  document.getElementById('r-path').textContent = '—';
+  document.querySelectorAll('.next-btn').forEach(function(b){ b.classList.remove('chosen'); });
+  ['reid','fid','anc','conf'].forEach(function(k) {
+    var el = document.getElementById('m-' + k); el.textContent = '—'; el.className = 'm-val c-dim';
+  });
+}
+
+function selectPath(type, btn) {
+  document.querySelectorAll('.next-btn').forEach(function(b){ b.classList.remove('chosen'); });
+  btn.classList.add('chosen');
+  var ps = document.getElementById('pathSection');
+  ps.className = 'path-section show slide-in';
+  document.getElementById('r-path').textContent = PATH_DESC[type];
+}
+
+function sleep(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
+
+function setEl(id, text, cls) {
+  var el = document.getElementById(id);
+  el.textContent = text;
+  el.className = cls;
+}
+
+async function runDemo() {
+  if (running) return;
+  running = true;
+  var btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.textContent = '⬤ 실행 중…';
+  reset();
+  var sc = SC[cur];
+
+  for (var i = 0; i < STAGES.length; i++) {
+    var s = STAGES[i];
+    var d = sc.stages[s];
+    var row = document.getElementById('row-' + s);
+    var nm  = document.getElementById('nm-' + s);
+
+    row.classList.add('active');
+    nm.classList.add('lit');
+    await sleep(380 + i * 50);
+
+    if (d.bar > 0) {
+      var bar = document.getElementById('bar-' + s);
+      bar.style.background = d.col;
+      bar.style.width = d.bar + '%';
+    }
+    await sleep(280);
+
+    var st = document.getElementById('st-' + s);
+    st.textContent = d.d;
+    st.className = 'stage-st show ' + (DCLS[d.d] || 's-cont');
+    row.classList.remove('active');
+
+    if (d.d === '재처리') {
+      row.classList.add('warn-pulse');
+      await sleep(300);
+      var rr = document.getElementById('retryRow');
+      rr.style.display = 'grid';
+      await sleep(120);
+      var rb = document.getElementById('bar-retry');
+      rb.style.width = sc.retryBar + '%';
+      await sleep(400);
+      document.getElementById('st-retry').textContent = '기준 미달';
+      rr.classList.add('halt-flash');
+      await sleep(300);
+    }
+
+    if (d.d === '중단') {
+      row.classList.add('halt-flash');
+      document.getElementById('row-LLM').classList.add('llm-blocked');
+      await sleep(360);
+      document.getElementById('bannerHalt').style.display = 'block';
+      document.getElementById('bannerDetail').textContent = sc.detail;
+      for (var j = i + 1; j < STAGES.length; j++) {
+        var bst = document.getElementById('st-' + STAGES[j]);
+        bst.textContent = '차단';
+        bst.className = 'stage-st show s-blk';
+      }
+      break;
+    }
+
+    if (d.d === '허용') {
+      document.getElementById('row-LLM').classList.add('llm-pass');
+    }
+
+    await sleep(80);
+  }
+
+  if (!sc.haltAt) {
+    document.getElementById('bannerPass').style.display = 'block';
+  }
+
+  await sleep(280);
+
+  setEl('r-llm',     sc.llm,     'result-value ' + sc.llmC + ' slide-in');
+  setEl('r-outcome', sc.outcome, 'result-value ' + sc.outC + ' slide-in');
+  setEl('r-reason',  sc.reason,  'reason-box '   + sc.reasonC + ' slide-in');
+
+  var m = sc.metrics; var mc = sc.mclass;
+  ['reid','fid','anc','conf'].forEach(function(k) {
+    var el = document.getElementById('m-' + k);
+    el.textContent = m[k]; el.className = 'm-val ' + mc[k];
+  });
+
+  if (sc.human) {
+    setEl('r-human', 'HUMAN_DECISION_REQUIRED 발행', 'human-box human-on slide-in');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '▶ 파이프라인 실행';
+  running = false;
+}
+</script>
+</body>
+</html>
