@@ -233,7 +233,7 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--line);padding:
         <div class="doc-overlay">[ 원문 · 내 기기에만 존재 ]</div>
       </div>
       <label style="font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px;">AI에게 요청</label>
-      <textarea class="goal-input" id="userGoal">이 조항 법적으로 문제없는지 확인해줘</textarea>
+      <textarea class="goal-input" id="userGoal">이 계약서 갑한테 유리하게 수정해줘</textarea>
       <button class="run-btn" id="runBtn" onclick="runDemo()">▶ AI에게 전송</button>
     </div>
   </div>
@@ -408,7 +408,7 @@ var RETRY_ITEMS = [
 
 var SC = {
   nda: {
-    goal:"갑한테 불리한 조항 찾아서 유리하게 바꿔줘",
+    goal:"이 계약서 갑한테 유리하게 수정해줘",
     stages:{
       AnchorMap:      {d:"통과", bar:82, col:"#10b981"},
       Abstraction:    {d:"차단", bar:91, col:"#ef4444"},
@@ -429,7 +429,7 @@ var SC = {
     mclass:{reid:"c-red",fid:"c-green",anc:"c-green",conf:"c-dim"},
   },
   generic: {
-    goal:"이 조항 법적으로 문제없는지 확인해줘",
+    goal:"이 조항 법적으로 문제없는지 봐줘",
     stages:{
       AnchorMap:      {d:"통과", bar:88, col:"#10b981"},
       Abstraction:    {d:"통과", bar:22, col:"#10b981"},
@@ -449,7 +449,7 @@ var SC = {
     mclass:{reid:"c-green",fid:"c-green",anc:"c-green",conf:"c-green"},
   },
   spa: {
-    goal:"손해배상 조항 한도 낮추는 방향으로 수정안 만들어줘",
+    goal:"손해배상 조항 우리한테 유리하게 바꿔줘",
     stages:{
       AnchorMap:      {d:"통과",   bar:76, col:"#10b981"},
       Abstraction:    {d:"통과",   bar:44, col:"#10b981"},
