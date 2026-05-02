@@ -208,21 +208,21 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--line);padding:
           <span class="case-title">NDA / 기밀유지 계약</span>
           <span class="case-badge b-halt">차단</span>
         </div>
-        <span class="case-sub">고위험 · 원본 추적 가능성 높음</span>
+        <span class="case-sub">고위험 · 원문 편집 요청 · 차단</span>
       </button>
       <button class="case-btn" data-case="generic" onclick="selectCase(this)">
         <div class="case-top">
           <span class="case-title">일반 정책 조항</span>
           <span class="case-badge b-pass">통과</span>
         </div>
-        <span class="case-sub">저위험 · 전 단계 정상 통과</span>
+        <span class="case-sub">저위험 · 법적 검토 요청 · 통과</span>
       </button>
       <button class="case-btn" data-case="spa" onclick="selectCase(this)">
         <div class="case-top">
           <span class="case-title">M&amp;A SPA 조항</span>
           <span class="case-badge b-warn">재시도→차단</span>
         </div>
-        <span class="case-sub">중위험 · 구조 재처리 후 차단</span>
+        <span class="case-sub">중위험 · 조건 변경 요청 · 재시도→차단</span>
       </button>
       <div class="doc-preview">
         <div class="doc-blur">
@@ -232,7 +232,7 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--line);padding:
         </div>
         <div class="doc-overlay">[ 원문 · 내 기기에만 존재 ]</div>
       </div>
-      <textarea class="goal-input" id="userGoal">AI 전달 전 금전적 리스크를 확인해 주세요.</textarea>
+      <textarea class="goal-input" id="userGoal">이 조항 법적으로 문제없는지 확인해줘</textarea>
       <button class="run-btn" id="runBtn" onclick="runDemo()">▶ 실행</button>
     </div>
   </div>
@@ -407,7 +407,7 @@ var RETRY_ITEMS = [
 
 var SC = {
   nda: {
-    goal:"AI 전달 전 기밀 조항 위험을 검토해 주세요.",
+    goal:"갑한테 불리한 조항 찾아서 유리하게 바꿔줘",
     stages:{
       AnchorMap:      {d:"통과", bar:82, col:"#10b981"},
       Abstraction:    {d:"차단", bar:91, col:"#ef4444"},
@@ -428,7 +428,7 @@ var SC = {
     mclass:{reid:"c-red",fid:"c-green",anc:"c-green",conf:"c-dim"},
   },
   generic: {
-    goal:"AI 전달 전 금전적 리스크를 확인해 주세요.",
+    goal:"이 조항 법적으로 문제없는지 확인해줘",
     stages:{
       AnchorMap:      {d:"통과", bar:88, col:"#10b981"},
       Abstraction:    {d:"통과", bar:22, col:"#10b981"},
@@ -448,7 +448,7 @@ var SC = {
     mclass:{reid:"c-green",fid:"c-green",anc:"c-green",conf:"c-green"},
   },
   spa: {
-    goal:"M&A 조항의 금전적 노출 위험을 분석해 주세요.",
+    goal:"손해배상 조항 한도 낮추는 방향으로 수정안 만들어줘",
     stages:{
       AnchorMap:      {d:"통과",   bar:76, col:"#10b981"},
       Abstraction:    {d:"통과",   bar:44, col:"#10b981"},
