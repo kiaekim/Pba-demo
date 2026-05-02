@@ -506,9 +506,6 @@ function reset() {
   document.getElementById('pathSection').className='path-section';
   document.getElementById('r-path').textContent='—';
   document.querySelectorAll('.next-btn').forEach(function(b){b.classList.remove('chosen');});
-  ['reid','fid','anc','conf'].forEach(function(k){
-    var el=document.getElementById('m-'+k); el.textContent='—'; el.className='m-val c-dim';
-  });
 }
 
 function selectPath(type,btn) {
