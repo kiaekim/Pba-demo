@@ -232,8 +232,9 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--line);padding:
         </div>
         <div class="doc-overlay">[ 원문 · 내 기기에만 존재 ]</div>
       </div>
+      <label style="font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px;">AI에게 요청</label>
       <textarea class="goal-input" id="userGoal">이 조항 법적으로 문제없는지 확인해줘</textarea>
-      <button class="run-btn" id="runBtn" onclick="runDemo()">▶ 실행</button>
+      <button class="run-btn" id="runBtn" onclick="runDemo()">▶ AI에게 전송</button>
     </div>
   </div>
 
@@ -532,7 +533,7 @@ async function runDemo() {
   if(running)return;
   running=true;
   var btn=document.getElementById('runBtn');
-  btn.disabled=true; btn.textContent='⬤ 실행 중…';
+  btn.disabled=true; btn.textContent='⬤ 처리 중…';
   reset();
   var sc=SC[cur];
 
@@ -635,7 +636,7 @@ async function runDemo() {
     setEl('r-human','사람 판단 요청 발생','human-box human-on slide-in');
   }
 
-  btn.disabled=false; btn.textContent='▶ 실행';
+  btn.disabled=false; btn.textContent='▶ AI에게 전송';
   running=false;
 }
 </script>
