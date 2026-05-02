@@ -370,14 +370,6 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--line);padding:
         <div class="result-value v-pass" style="font-size:18px">0 글자</div>
         <div style="font-size:10px;color:var(--slate);margin-top:4px;font-weight:300;">AI 경로: 항상 0</div>
       </div>
-      <div class="result-section">
-        <div class="result-label">위험 지표</div>
-        <div class="metrics-grid">
-          <div class="m-item"><div class="m-key">원본 추적 가능성</div><div class="m-val c-dim" id="m-reid">—</div></div>
-          <div class="m-item"><div class="m-key">구조 보존율</div><div class="m-val c-dim" id="m-fid">—</div></div>
-          <div class="m-item"><div class="m-key">요소 커버리지</div><div class="m-val c-dim" id="m-anc">—</div></div>
-          <div class="m-item"><div class="m-key">신뢰 수준</div><div class="m-val c-dim" id="m-conf">—</div></div>
-        </div>
       </div>
       <div class="path-section" id="pathSection">
         <div class="result-label">선택된 처리 방법</div>
@@ -625,12 +617,6 @@ async function runDemo() {
   setEl('r-llm', sc.llm, 'result-value '+sc.llmC+' slide-in');
   setEl('r-outcome', sc.outcome, 'result-value '+sc.outC+' slide-in');
   setEl('r-reason', sc.reason, 'reason-box '+sc.reasonC+' slide-in');
-
-  var m=sc.metrics; var mc=sc.mclass;
-  ['reid','fid','anc','conf'].forEach(function(k){
-    var el=document.getElementById('m-'+k);
-    el.textContent=m[k]; el.className='m-val '+mc[k];
-  });
 
   if(sc.human){
     setEl('r-human','사람 판단 요청 발생','human-box human-on slide-in');
